@@ -1,0 +1,57 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 1113 >>
+stream
+BT /F1 10 Tf 50 780 Td 13 TL
+(ELECTRICAL DRAWING E-3401 REV C - CONVEYOR CV-104) Tj T*
+(Sheet 1 of 1 - MCC-3 Single Line & Control) Tj T*
+() Tj T*
+(MCC-3 BUCKET 4B - CONVEYOR CV-104 MOTOR STARTER) Tj T*
+(Supply: 480V 3PH 60Hz from MCC-3 main bus) Tj T*
+(Breaker: CB-104, 40A thermal-magnetic) Tj T*
+(Drive: VFD-104 \(see OEM manual for fault codes\)) Tj T*
+(Overload: OL-104 set at 32A) Tj T*
+(Motor: M-104, 25 HP, 480V, FLA 31A) Tj T*
+() Tj T*
+(CONTROL CIRCUIT \(120V from CPT-3\):) Tj T*
+(Start permissives \(all required\):) Tj T*
+(- E-stop string ES-1 healthy) Tj T*
+(- Upstream conveyor CV-103 running \(permissive relay CR-103\)) Tj T*
+(- Belt drift switches DS-104A / DS-104B not tripped) Tj T*
+(- Pull-cord switches PC-104 \(1-4\) reset) Tj T*
+() Tj T*
+(INTERLOCKS:) Tj T*
+(- CV-104 trips if downstream conveyor CV-105 stops \(interlock relay CR-105\)) Tj T*
+(- Zero-speed switch ZS-104 alarms after 5s below setpoint) Tj T*
+() Tj T*
+(NOTES:) Tj T*
+(1. All work on MCC-3 requires isolation at CB-104 and bus verification.) Tj T*
+(2. Refer to site procedure SOP-ELEC-07 before opening any bucket.) Tj T*
+ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1476
+%%EOF

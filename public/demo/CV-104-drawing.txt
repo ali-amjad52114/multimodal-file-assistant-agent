@@ -1,0 +1,24 @@
+ELECTRICAL DRAWING E-3401 REV C - CONVEYOR CV-104
+Sheet 1 of 1 - MCC-3 Single Line & Control
+
+MCC-3 BUCKET 4B - CONVEYOR CV-104 MOTOR STARTER
+Supply: 480V 3PH 60Hz from MCC-3 main bus
+Breaker: CB-104, 40A thermal-magnetic
+Drive: VFD-104 (see OEM manual for fault codes)
+Overload: OL-104 set at 32A
+Motor: M-104, 25 HP, 480V, FLA 31A
+
+CONTROL CIRCUIT (120V from CPT-3):
+Start permissives (all required):
+- E-stop string ES-1 healthy
+- Upstream conveyor CV-103 running (permissive relay CR-103)
+- Belt drift switches DS-104A / DS-104B not tripped
+- Pull-cord switches PC-104 (1-4) reset
+
+INTERLOCKS:
+- CV-104 trips if downstream conveyor CV-105 stops (interlock relay CR-105)
+- Zero-speed switch ZS-104 alarms after 5s below setpoint
+
+NOTES:
+1. All work on MCC-3 requires isolation at CB-104 and bus verification.
+2. Refer to site procedure SOP-ELEC-07 before opening any bucket.

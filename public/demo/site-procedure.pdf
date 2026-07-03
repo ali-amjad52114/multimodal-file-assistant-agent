@@ -1,0 +1,58 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 1267 >>
+stream
+BT /F1 10 Tf 50 780 Td 13 TL
+(SITE PROCEDURE SOP-ELEC-07 REV 4) Tj T*
+(ELECTRICAL ISOLATION AND MCC ACCESS) Tj T*
+() Tj T*
+(1. SCOPE) Tj T*
+(This procedure applies to all work on motor control centers \(MCC\),) Tj T*
+(including opening any MCC bucket, resetting breakers, and inspecting) Tj T*
+(motor starters or drives.) Tj T*
+() Tj T*
+(2. LOCKOUT/TAGOUT \(LOTO\) - MANDATORY) Tj T*
+(Lockout/Tagout is required before opening any MCC bucket.) Tj T*
+(Steps:) Tj T*
+(2.1 Obtain a LOTO permit from the shift supervisor.) Tj T*
+(2.2 Identify the isolation point on the drawing \(breaker or disconnect\).) Tj T*
+(2.3 Open, lock and tag the breaker. Apply personal lock.) Tj T*
+(2.4 Verify zero energy with a rated tester at the bucket terminals.) Tj T*
+(2.5 Record permit number and isolation verification on the permit.) Tj T*
+() Tj T*
+(3. RESET AND RE-ENERGIZATION) Tj T*
+(3.1 Breaker or drive resets require supervisor authorization.) Tj T*
+(3.2 A completed LOTO permit must be attached to the work order.) Tj T*
+(3.3 After reset, monitor the first start from a safe position.) Tj T*
+() Tj T*
+(4. ESCALATION) Tj T*
+(If a fault trips again after one authorized reset, stop work and) Tj T*
+(escalate to the reliability engineer. Do not attempt repeated resets.) Tj T*
+ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1630
+%%EOF

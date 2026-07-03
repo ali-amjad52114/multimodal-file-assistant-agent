@@ -1,0 +1,25 @@
+SITE PROCEDURE SOP-ELEC-07 REV 4
+ELECTRICAL ISOLATION AND MCC ACCESS
+
+1. SCOPE
+This procedure applies to all work on motor control centers (MCC),
+including opening any MCC bucket, resetting breakers, and inspecting
+motor starters or drives.
+
+2. LOCKOUT/TAGOUT (LOTO) - MANDATORY
+Lockout/Tagout is required before opening any MCC bucket.
+Steps:
+2.1 Obtain a LOTO permit from the shift supervisor.
+2.2 Identify the isolation point on the drawing (breaker or disconnect).
+2.3 Open, lock and tag the breaker. Apply personal lock.
+2.4 Verify zero energy with a rated tester at the bucket terminals.
+2.5 Record permit number and isolation verification on the permit.
+
+3. RESET AND RE-ENERGIZATION
+3.1 Breaker or drive resets require supervisor authorization.
+3.2 A completed LOTO permit must be attached to the work order.
+3.3 After reset, monitor the first start from a safe position.
+
+4. ESCALATION
+If a fault trips again after one authorized reset, stop work and
+escalate to the reliability engineer. Do not attempt repeated resets.

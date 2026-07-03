@@ -121,15 +121,33 @@ async function resolveClaudeSessionBinding(
 /** In-process file cache: persists uploaded files across follow-up requests within same process */
 const _sessionFileCache = new Map<
   string,
-  Array<{ name: string; base64: string }>
+  Array<{ name: string; base64: string; role?: string }>
 >();
+
+/** Trace/decision persistence across turns (the PDF-generation click arrives
+ * as a NEW /chat request — per-request state is gone by then, so the trace
+ * log and safety decision are stored per conversation like the file cache). */
+type TraceEvent = {
+  step: number;
+  phase: string;
+  detail: string;
+  source?: string;
+  page?: number;
+};
+type SafetyDecision = {
+  status: string;
+  reason: string;
+  missing_evidence: string[];
+};
+const _sessionTraceLog = new Map<string, TraceEvent[]>();
+const _sessionSafetyDecision = new Map<string, SafetyDecision>();
 
 export async function onRequest(context: any) {
   const ctxEnv: Record<string, string | undefined> = context.env ?? process.env;
 
   const body = context.request.body ?? {};
   let message = typeof body.message === "string" ? body.message.trim() : "";
-  const uploadedFiles: Array<{ name: string; base64: string }> =
+  const uploadedFiles: Array<{ name: string; base64: string; role?: string }> =
     body.files ?? [];
 
   // Detect user locale from the language hint appended by the frontend
@@ -154,7 +172,7 @@ export async function onRequest(context: any) {
 
   // ─── Session file cache: persist uploaded files across follow-up requests ────
   // The EdgeOne sandbox /tmp/ is ephemeral — re-upload cached files on every request.
-  const cachedSessionFiles: Array<{ name: string; base64: string }> =
+  const cachedSessionFiles: Array<{ name: string; base64: string; role?: string }> =
     conversationId ? _sessionFileCache.get(conversationId) ?? [] : [];
 
   if (conversationId && uploadedFiles.length > 0) {
@@ -165,10 +183,41 @@ export async function onRequest(context: any) {
   }
 
   // On follow-up requests (no new files), re-upload all cached files to the (possibly fresh) sandbox
-  const filesToUpload: Array<{ name: string; base64: string }> =
+  const filesToUpload: Array<{ name: string; base64: string; role?: string }> =
     uploadedFiles.length > 0
       ? _sessionFileCache.get(conversationId) ?? uploadedFiles
       : cachedSessionFiles;
+
+  // ─── Trace persistence: clear on new analysis turns, inject on PDF turns ────
+  // The "Generate Troubleshooting PDF" click arrives as a fresh /chat request;
+  // the stored trace log + safety decision from the analysis turn must flow
+  // into the generated brief. On any other turn, the previous trace is stale.
+  const isPdfGenerationTurn = /generate[\s\S]{0,60}?pdf|生成[\s\S]{0,30}?PDF/i.test(
+    message
+  );
+  if (conversationId) {
+    if (isPdfGenerationTurn) {
+      const storedTrace = _sessionTraceLog.get(conversationId) ?? [];
+      const storedDecision =
+        _sessionSafetyDecision.get(conversationId) ?? null;
+      if (storedTrace.length > 0 || storedDecision) {
+        const traceLines = storedTrace
+          .map(
+            (t) =>
+              `${t.step}. (${t.phase}${t.source ? ` | ${t.source}` : ""}${
+                t.page ? ` p.${t.page}` : ""
+              }) ${t.detail}`
+          )
+          .join("\n");
+        message += `\n\n[System: Stored analysis from this session — Safety decision: ${JSON.stringify(
+          storedDecision
+        )}. Trace log:\n${traceLines}\nUse these VERBATIM in the generated brief; do not re-derive or invent trace steps.]`;
+      }
+    } else {
+      // New analysis turn — start a fresh trace log
+      _sessionTraceLog.set(conversationId, []);
+    }
+  }
   const store = context.store ?? null;
   const cwd = process.cwd();
 
@@ -346,6 +395,87 @@ export async function onRequest(context: any) {
     name: "custom-tools",
     alwaysLoad: true,
     tools: [
+      {
+        name: "report_trace",
+        description:
+          "Report one analysis step to the user's live trace timeline. " +
+          "Call after EVERY analysis step: parsing the problem, identifying the asset, " +
+          "searching each document, matching fault codes, checking safety requirements, " +
+          "and forming the final decision.",
+        inputSchema: {
+          step: z.number().describe("Sequential step number starting at 1"),
+          phase: z
+            .string()
+            .describe(
+              "Short phase id, e.g. parse_problem, asset_identified, search_drawing, " +
+                "search_manual, search_procedure, extraction_fallback, safety_check, decision"
+            ),
+          detail: z
+            .string()
+            .describe("One-line description of what was found or decided"),
+          source: z
+            .enum(["drawing", "manual", "procedure", "none"])
+            .optional()
+            .describe("Document role this step used, if any"),
+          page: z
+            .number()
+            .optional()
+            .describe("Page number in the source document, if applicable"),
+        },
+        handler: async (input: {
+          step: number;
+          phase: string;
+          detail: string;
+          source?: "drawing" | "manual" | "procedure" | "none";
+          page?: number;
+        }) => {
+          sseQueue.push(sseEvent({ type: "trace", ...input }));
+          // Persist for the PDF-generation turn (a separate /chat request)
+          if (conversationId) {
+            const log = _sessionTraceLog.get(conversationId) ?? [];
+            log.push(input);
+            _sessionTraceLog.set(conversationId, log);
+          }
+          return {
+            content: [
+              { type: "text" as const, text: "Trace step recorded." },
+            ],
+          };
+        },
+      },
+      {
+        name: "safety_decision",
+        description:
+          "Report the safety gate outcome for this analysis. " +
+          "Call EXACTLY ONCE per analysis run, before writing the brief.",
+        inputSchema: {
+          status: z
+            .enum(["ready", "blocked", "needs_info"])
+            .describe("Safety gate outcome"),
+          reason: z.string().describe("One-line reason for the decision"),
+          missing_evidence: z
+            .array(z.string())
+            .describe("Evidence still required; empty array if none"),
+        },
+        handler: async (input: {
+          status: "ready" | "blocked" | "needs_info";
+          reason: string;
+          missing_evidence: string[];
+        }) => {
+          sseQueue.push(sseEvent({ type: "safety_decision", ...input }));
+          if (conversationId) {
+            _sessionSafetyDecision.set(conversationId, input);
+          }
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: "Safety decision recorded and shown to the user.",
+              },
+            ],
+          };
+        },
+      },
       {
         name: "suggest_actions",
         description:
@@ -534,7 +664,9 @@ export async function onRequest(context: any) {
   );
 
   // ─── System prompt (skills-based, dynamic) ───────────────────────────────────
-  const systemPrompt = buildSystemPrompt(uploadedFiles, sandboxWorking, locale);
+  // Pass the FULL session roster (with document roles), not just this turn's
+  // uploads, so the agent always knows which file is the drawing/manual/procedure.
+  const systemPrompt = buildSystemPrompt(filesToUpload, sandboxWorking, locale);
 
   // ─── Build query options ──────────────────────────────────────────────────────
   // The Claude Agent SDK spawns the `claude` CLI subprocess with stderr set to
@@ -554,6 +686,8 @@ export async function onRequest(context: any) {
     allowedTools: [
       "mcp__custom-tools__suggest_actions",
       "mcp__custom-tools__deliver_file",
+      "mcp__custom-tools__report_trace",
+      "mcp__custom-tools__safety_decision",
       ...(edgeoneMcp?.allowedTools ?? []),
     ],
     // Do not set settingSources / skills options — this project has no .claude/

@@ -1,0 +1,28 @@
+ACME DRIVES VFD-2000 SERIES - INSTALLATION & TROUBLESHOOTING MANUAL
+Section 6: Fault Codes and Corrective Actions
+
+FAULT CODE TABLE:
+F0A1 Overvoltage - DC bus above limit. Check supply, decel time.
+F0B2 Undervoltage - DC bus below limit. Check supply, loose terminals.
+F0C1 Overcurrent - Output current exceeded 200% of drive rating.
+F0D3 Overtemperature - Heatsink above limit. Check fans and filters.
+F0E4 Ground fault - Leakage current detected. Megger motor and cable.
+
+F0C1 OVERCURRENT - DETAILS:
+Possible causes:
+1. Mechanical jam or blockage on the driven load
+2. Motor overload (excessive material load, belt drag)
+3. Short circuit in motor cable or terminal box
+4. Loose power wiring at drive output or motor terminals
+5. Failed motor bearing causing mechanical drag
+6. Acceleration time set too short for load inertia
+
+Corrective actions:
+- Inspect the driven equipment for jams before resetting
+- Verify motor current against nameplate FLA
+- Check output wiring and motor terminal tightness
+- Review acceleration/deceleration parameters (P2.03 / P2.04)
+
+WARNING: Do not reset the drive repeatedly after F0C1.
+Repeated resets into a fault can damage the drive and motor.
+If the fault returns after one reset, isolate and investigate.
