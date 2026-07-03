@@ -829,6 +829,19 @@ export async function onRequest(context: any) {
               const fullText: string = block.text || "";
               const alreadySent = sentTextLenByBlock.get(idx) ?? 0;
               if (fullText.length > alreadySent) {
+                // Guard against block-index mismatches between stream_event
+                // deltas and the final assistant message (seen with
+                // OpenAI-compatible gateways): if this block's entire text
+                // was already streamed this turn under a different index,
+                // don't re-emit it — that doubles every message in the UI.
+                if (
+                  alreadySent === 0 &&
+                  fullText &&
+                  fullAssistantText.includes(fullText)
+                ) {
+                  sentTextLenByBlock.set(idx, fullText.length);
+                  continue;
+                }
                 const delta = fullText.slice(alreadySent);
                 sentTextLenByBlock.set(idx, fullText.length);
                 fullAssistantText += delta;

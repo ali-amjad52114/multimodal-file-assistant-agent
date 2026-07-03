@@ -21,7 +21,8 @@ export const BASE_PROMPT = `You are FaultPack AI — an industrial troubleshooti
   Parameters: language ("python"/"javascript"/"bash"), code (source code).
 
 ## Sandbox Environment
-- Pre-installed Python packages (DO NOT pip install): pandas, openpyxl, Pillow, PyPDF2, pdfplumber, python-docx, fpdf2, tabulate, matplotlib, numpy
+- Usually pre-installed Python packages: pandas, openpyxl, Pillow, python-docx, fpdf2, tabulate, matplotlib, numpy
+- pdfplumber / PyPDF2 may NOT be installed. On ModuleNotFoundError: pip install it once (see Document Search skill), and if that fails use the TXT mirror fallback. Do NOT give up after one ImportError.
 - Uploaded documents are at /tmp/<filename>. Do NOT search for files — they are already there. If code_interpreter throws FileNotFoundError for an uploaded file, STOP and tell the user the file is unavailable — do NOT generate placeholder or substitute content.
 
 ## Custom Tools (MUST use)
@@ -56,15 +57,23 @@ FaultPack AI does not replace qualified electrical judgment. It summarizes relev
 
 export const SKILL_PDF_SEARCH = `## Loaded Skill: Document Search (pdfplumber)
 
-Extract text page-by-page so every finding can cite a page number:
+Extract text page-by-page so every finding can cite a page number. pdfplumber may not be pre-installed — ALWAYS use this import pattern (self-installing):
 
 \`\`\`python
-import pdfplumber
+try:
+    import pdfplumber
+except ModuleNotFoundError:
+    import subprocess, sys
+    subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', 'pdfplumber'], check=False)
+    import pdfplumber
+
 with pdfplumber.open('/tmp/<name>.pdf') as pdf:
     for pageno, page in enumerate(pdf.pages, 1):
         text = page.extract_text() or ''
         # search for asset tags, fault codes, keywords; remember pageno
 \`\`\`
+
+If the pip install also fails (no network in sandbox), fall back to the TXT mirrors described below — do not stop at the ImportError.
 
 - Search for: the asset tag (e.g. CV-104), fault codes (e.g. F0C1), equipment terms (VFD, MCC, breaker, starter, overload, interlock), and safety keywords (lockout, tagout, LOTO, isolation, permit, authorization).
 - ALWAYS record the page number of every match. Cite it in report_trace (page field) and in the brief's document references.

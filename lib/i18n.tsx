@@ -14,7 +14,7 @@ export const translations = {
     done: '完成',
     error: '错误',
     quotaExhausted: 'AI 模型调用额度已用尽，请稍后再试或升级套餐。',
-    suggestPrompt: '我已上传现场文件。请识别每份文件的内容，然后等待我描述故障。',
+    suggestPrompt: '我已上传现场文件。请识别每份文件的内容（每查看一份文件就调用一次 report_trace 记录），然后等待我描述故障。',
     emptyHint: '上传三份现场文件：电气图纸、设备手册、安全规程',
     importSample: '📊 加载演示文件（CV-104 输送机）',
     taskComplete: '✅ 处理完成',
@@ -54,7 +54,7 @@ export const translations = {
     error: 'Error',
     quotaExhausted: 'AI model quota exhausted. Please try again later or upgrade your plan.',
     suggestPrompt:
-      "I've uploaded the site documents. Identify what each one covers and wait for my fault description.",
+      "I've uploaded the site documents. Identify what each one covers (call report_trace once per document as you review it) and wait for my fault description.",
     emptyHint: 'Upload the three site documents: electrical drawing, OEM manual, safety procedure',
     importSample: '📊 Load demo documents (Conveyor CV-104)',
     taskComplete: '✅ Task completed',
